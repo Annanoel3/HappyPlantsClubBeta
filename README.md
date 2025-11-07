@@ -429,6 +429,14 @@ npx cap open ios
 - Check that push notification certificates are properly configured in OneSignal dashboard
 - For iOS, ensure you have a valid push notification certificate or APNs authentication key
 
+### NotifyBridge Plugin Not Found
+If you see errors about the NotifyBridge plugin not being available:
+- **DO NOT** manually load `capacitor.js` in your HTML files
+- Capacitor 7 automatically injects the native bridge JavaScript at runtime
+- Any custom Capacitor stub files will interfere with the native bridge initialization
+- The plugin will be available at `window.Capacitor.Plugins.NotifyBridge` after the native bridge loads
+- Check browser console logs for `[OneSignal]` prefixed messages to debug plugin availability
+
 ## License
 
 ISC

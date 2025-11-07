@@ -278,7 +278,15 @@ Already configured:
 
 ### Issue: "NotifyBridge plugin not available"
 
-**Solution:** Ensure plugin is registered BEFORE `super.onCreate()` in MainActivity.java (already done).
+**Root Cause:** The NotifyBridge plugin may not be discoverable if custom JavaScript files interfere with Capacitor's native bridge initialization.
+
+**Solutions:**
+1. Ensure plugin is registered BEFORE `super.onCreate()` in MainActivity.java (already done)
+2. **DO NOT** manually load `capacitor.js` or create Capacitor stub files
+3. Capacitor 7 automatically injects the native bridge JavaScript (`native-bridge.js`) at document start
+4. Any custom `window.Capacitor` object created before the native bridge loads will prevent plugins from being discovered
+5. Check browser console for `[OneSignal]` logs showing available plugins
+6. Verify `window.Capacitor.Plugins.NotifyBridge` exists in the JavaScript console after app loads
 
 ### Issue: Build error about google-services.json
 
