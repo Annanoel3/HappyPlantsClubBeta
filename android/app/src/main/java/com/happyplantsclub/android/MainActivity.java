@@ -10,8 +10,8 @@ public class MainActivity extends BridgeActivity {
     
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Register the NotifyBridge plugin BEFORE calling super.onCreate()
-        // This ensures it's available when Capacitor initializes the bridge
+        // ⚠️ IMPORTANT: Register plugin BEFORE super.onCreate()
+        // This ensures it's available when Capacitor initializes
         Log.d(TAG, "Registering NotifyBridge plugin...");
         registerPlugin(NotifyBridge.class);
         Log.d(TAG, "NotifyBridge plugin registered");
