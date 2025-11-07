@@ -1,0 +1,21 @@
+{
+  "name": "happy-plants-club-beta",
+  "version": "1.0.0",
+  "description": "Happy Plants Club mobile app wrapped with Capacitor",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'No build step needed for wrapper'",
+    "sync": "npx cap sync"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@capacitor/core": "^7.0.0",
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/ios": "^7.0.0",
+    "onesignal-cordova-plugin": "^5.2.0",
+    "@awesome-cordova-plugins/onesignal": "^6.7.0"
+  }
+}
