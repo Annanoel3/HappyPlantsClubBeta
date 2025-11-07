@@ -1,6 +1,5 @@
 package com.happyplantsclub.android;
 
-import android.util.Log;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
@@ -21,14 +20,6 @@ import org.jetbrains.annotations.NotNull;
 @CapacitorPlugin(name = "NotifyBridge")
 public class NotifyBridge extends Plugin {
 
-    private static final String TAG = "NotifyBridge";
-    
-    @Override
-    public void load() {
-        Log.d(TAG, "NotifyBridge plugin loaded successfully!");
-        super.load();
-    }
-
     /**
      * Login method - Sets the external user ID in OneSignal and returns the Player ID
      *
@@ -38,7 +29,6 @@ public class NotifyBridge extends Plugin {
      */
     @PluginMethod
     public void login(PluginCall call) {
-        Log.d(TAG, "login() method called");
         String externalId = call.getString("externalId");
 
         if (externalId == null || externalId.isEmpty()) {

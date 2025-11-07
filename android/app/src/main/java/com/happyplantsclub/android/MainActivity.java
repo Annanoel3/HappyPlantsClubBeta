@@ -1,22 +1,16 @@
 package com.happyplantsclub.android;
 
 import android.os.Bundle;
-import android.util.Log;
 import com.getcapacitor.BridgeActivity;
+import android.util.Log;
 
 public class MainActivity extends BridgeActivity {
-    
     private static final String TAG = "MainActivity";
-    
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        // Register the NotifyBridge plugin BEFORE calling super.onCreate()
-        // This ensures it's available when Capacitor initializes the bridge
         Log.d(TAG, "Registering NotifyBridge plugin...");
-        registerPlugin(NotifyBridge.class);
-        Log.d(TAG, "NotifyBridge plugin registered");
-        
+        registerPlugin(NotifyBridge.class);  // BEFORE super.onCreate()
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "MainActivity onCreate completed");
     }
 }
