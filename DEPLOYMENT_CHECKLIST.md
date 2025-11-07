@@ -20,7 +20,7 @@ Use this checklist to deploy your Happy Plants Club mobile app to production.
 - [ ] Go to [Firebase Console](https://console.firebase.google.com/)
 - [ ] Create a new project (or use existing)
 - [ ] Click "Add app" → Select Android
-- [ ] Enter package name: `com.happyplantsclub.beta`
+- [ ] Enter package name: `com.happyplantsclub.android`
 - [ ] Download `google-services.json`
 - [ ] Replace file at: `android/app/google-services.json`
 - [ ] In Firebase Console, go to Project Settings → Cloud Messaging
@@ -34,7 +34,7 @@ Use this checklist to deploy your Happy Plants Club mobile app to production.
 - [ ] Enroll in Apple Developer Program (if not already)
 - [ ] Go to [Apple Developer Portal](https://developer.apple.com/)
 - [ ] Identifiers → App IDs → Create new
-- [ ] Bundle ID: `com.happyplantsclub.beta`
+- [ ] Bundle ID: `com.happyplantsclub.android`
 - [ ] Enable "Push Notifications" capability
 - [ ] Keys → Create new key
 - [ ] Enable "Apple Push Notifications service (APNs)"
@@ -65,7 +65,7 @@ Use this checklist to deploy your Happy Plants Club mobile app to production.
   - [ ] Select the App target
   - [ ] Signing & Capabilities tab
   - [ ] Select your Team
-  - [ ] Ensure Bundle Identifier is `com.happyplantsclub.beta`
+  - [ ] Ensure Bundle Identifier is `com.happyplantsclub.android`
   - [ ] Add "Push Notifications" capability
   - [ ] Add "Background Modes" capability → Check "Remote notifications"
   - [ ] Select Product → Archive

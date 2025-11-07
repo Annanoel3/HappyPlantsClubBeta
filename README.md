@@ -20,7 +20,7 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 - **App ID**: `3f0b6a12-b2d3-4c56-8e76-de9baafc41de`
 
 ### Capacitor
-- **App ID**: `com.happyplantsclub.beta`
+- **App ID**: `com.happyplantsclub.android`
 - **App Name**: Happy Plants Club
 - **Web URL**: https://happyplantsclub.base44.app
 

@@ -1,15 +1,29 @@
 {
-  "_comment": "PLACEHOLDER - Replace this file with your actual google-services.json from Firebase Console",
-  "_instructions": [
-    "1. Go to Firebase Console: https://console.firebase.google.com/",
-    "2. Create or select your project",
-    "3. Add an Android app with package name: com.happyplantsclub.beta",
-    "4. Download the google-services.json file",
-    "5. Replace this file with the downloaded google-services.json",
-    "6. This file is required for push notifications to work properly"
-  ],
   "project_info": {
-    "project_number": "REPLACE_WITH_YOUR_PROJECT_NUMBER",
-    "project_id": "REPLACE_WITH_YOUR_PROJECT_ID"
-  }
+    "project_number": "967874809499",
+    "project_id": "happy-plants-club",
+    "storage_bucket": "happy-plants-club.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967874809499:android:1b6c5c5fe20479c064803e",
+        "android_client_info": {
+          "package_name": "com.happyplantsclub.android"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5RWfySt_RvBdIVCCeADSfW_wm71BO5So"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }

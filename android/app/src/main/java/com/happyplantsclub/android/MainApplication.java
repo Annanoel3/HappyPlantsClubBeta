@@ -1,4 +1,4 @@
-package com.happyplantsclub.beta;
+package com.happyplantsclub.android;
 
 import android.app.Application;
 import com.onesignal.OneSignal;

@@ -55,7 +55,7 @@ This repository now contains a complete Capacitor 7 mobile app wrapper for the H
 
 1. **Firebase Setup (Android)**
    - Create Firebase project
-   - Add Android app with package name: `com.happyplantsclub.beta`
+   - Add Android app with package name: `com.happyplantsclub.android`
    - Download `google-services.json`
    - Replace `android/app/google-services.json` with actual file
    - Configure FCM in OneSignal dashboard

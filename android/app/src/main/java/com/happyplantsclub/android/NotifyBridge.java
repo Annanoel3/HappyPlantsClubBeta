@@ -1,4 +1,4 @@
-package com.happyplantsclub.beta;
+package com.happyplantsclub.android;
 
 import android.util.Log;
 import com.getcapacitor.Plugin;

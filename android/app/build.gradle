@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace "com.happyplantsclub.beta"
+    namespace "com.happyplantsclub.android"
     compileSdk rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.happyplantsclub.beta"
+        applicationId "com.happyplantsclub.android"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

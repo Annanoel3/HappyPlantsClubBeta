@@ -53,7 +53,7 @@ OneSignal requires Firebase Cloud Messaging (FCM) for Android push notifications
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Create a new project or select an existing one
 3. Click "Add app" → Select Android
-4. Enter package name: `com.happyplantsclub.beta`
+4. Enter package name: `com.happyplantsclub.android`
 5. Download the `google-services.json` file
 6. Replace the placeholder file at:
    ```
@@ -70,7 +70,7 @@ OneSignal requires Firebase Cloud Messaging (FCM) for Android push notifications
 ### 2. iOS Push Notification Configuration (REQUIRED for iOS)
 
 1. **Apple Developer Account Setup:**
-   - Create an App ID: `com.happyplantsclub.beta`
+   - Create an App ID: `com.happyplantsclub.android`
    - Enable Push Notifications capability
    - Generate APNs Authentication Key or Certificate
 
@@ -321,6 +321,6 @@ Already configured:
 
 ---
 
-**App ID:** `com.happyplantsclub.beta`  
+**App ID:** `com.happyplantsclub.android`  
 **OneSignal App ID:** `3f0b6a12-b2d3-4c56-8e76-de9baafc41de`  
 **Web URL:** `https://happyplantsclub.base44.app`
