@@ -105,7 +105,14 @@ Your project is now at:
 - **Windows**: `C:\Users\YourName\Documents\HappyPlantsClubBeta`
 - **macOS/Linux**: `~/Documents/HappyPlantsClubBeta`
 
-### Step 7: Test the App in Your Browser
+### Step 7: Install Dependencies
+```bash
+npm install
+```
+
+This will install Capacitor and all other required dependencies. Wait for the installation to complete (may take 1-2 minutes).
+
+### Step 8: Test the App in Your Browser
 ```bash
 # Windows:
 start www\index.html
@@ -188,7 +195,12 @@ git clone https://github.com/Annanoel3/HappyPlantsClubBeta.git
 cd HappyPlantsClubBeta
 ```
 
-2. Open `www/index.html` directly in your web browser:
+2. Install dependencies (including Capacitor):
+```bash
+npm install
+```
+
+3. Open `www/index.html` directly in your web browser:
    - **macOS**: `open www/index.html`
    - **Windows**: `start www/index.html`
    - **Linux**: `xdg-open www/index.html`
