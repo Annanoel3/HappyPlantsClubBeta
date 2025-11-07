@@ -167,6 +167,7 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 - **App ID**: `com.happyplantsclub.android`
 - **App Name**: Happy Plants Club
 - **Web URL**: https://happyplantsclub.base44.app
+- **Web Asset Directory**: `www` (local directory that gets synced to native projects)
 
 ### Firebase
 - ✅ **Firebase configured** - The production Firebase configuration file (`android/app/google-services.json`) is already included in the repository for the Happy Plants Club project.
@@ -359,10 +360,57 @@ window.addEventListener('message', function(event) {
 
 ## Sync Changes
 
-After making changes to web assets or configuration:
+After making changes to web assets (files in `www/` directory) or Capacitor configuration, you need to sync them to the native Android and iOS projects.
+
+### Push Changes to Android Studio (via Command Prompt)
+
+1. **Open Command Prompt/Terminal** in the project directory:
+```bash
+cd HappyPlantsClubBeta
+```
+
+2. **Sync your changes to Android project**:
 ```bash
 npm run sync
+# or directly:
+npx cap sync android
 ```
+
+This command will:
+- Copy files from `www/` directory to `android/app/src/main/assets/public/`
+- Update native dependencies
+- Apply configuration changes from `capacitor.config.json`
+
+3. **Optional: Open in Android Studio** (if not already open):
+```bash
+npm run open:android
+# or:
+npx cap open android
+```
+
+4. **Refresh in Android Studio**: If Android Studio is already open, it should detect the changes automatically. If not, click "Sync Project with Gradle Files" button.
+
+### Push Changes to iOS (via Command Prompt)
+
+```bash
+npm run sync
+# or directly:
+npx cap sync ios
+```
+
+Then open in Xcode:
+```bash
+npm run open:ios
+# or:
+npx cap open ios
+```
+
+### Quick Reference
+- **Sync all platforms**: `npm run sync` or `npx cap sync`
+- **Sync Android only**: `npx cap sync android`
+- **Sync iOS only**: `npx cap sync ios`
+- **Copy web assets only**: `npx cap copy`
+- **Update native dependencies**: `npx cap update`
 
 ## Troubleshooting
 
