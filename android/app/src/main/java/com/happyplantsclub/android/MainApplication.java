@@ -3,6 +3,7 @@ package com.happyplantsclub.android;
 import android.app.Application;
 import com.onesignal.OneSignal;
 import com.onesignal.debug.LogLevel;
+import com.happyplantsclub.android.BuildConfig;
 
 public class MainApplication extends Application {
     
