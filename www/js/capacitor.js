@@ -1,10 +1,8 @@
-// Capacitor stub - the actual Capacitor.js will be injected by the native bridge
-// This file exists to prevent errors if scripts load before Capacitor is ready
-
+// Capacitor stub - Capacitor runtime is injected by the native platform
+// This file exists to prevent 404 errors when running in a browser
 if (!window.Capacitor) {
     window.Capacitor = {
-        Plugins: {},
-        platform: 'web'
+        isNativePlatform: () => false,
+        getPlatform: () => 'web'
     };
-    console.log('[Capacitor] Stub loaded - waiting for native bridge...');
 }
