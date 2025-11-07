@@ -1,0 +1,17 @@
+{
+  "appId": "com.happyplantsclub.beta",
+  "appName": "Happy Plants Club",
+  "webDir": "www",
+  "server": {
+    "url": "https://happyplantsclub.base44.app",
+    "cleartext": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 0
+    },
+    "PushNotifications": {
+      "presentationOptions": ["badge", "sound", "alert"]
+    }
+  }
+}
