@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "build": "echo 'No build step needed for wrapper'",
-    "sync": "npx cap sync"
+    "sync": "npx cap sync",
+    "open": "npx cap open",
+    "test:browser": "echo 'Opening www/index.html - use your browser to open this file for local testing'",
+    "dev:android": "npx cap run android",
+    "dev:ios": "npx cap run ios"
   },
   "keywords": [],
   "author": "",
