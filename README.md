@@ -1,13 +1,15 @@
 # HappyPlantsClubBeta
 
-A mobile application wrapper for Happy Plants Club using Capacitor 7, with integrated OneSignal push notifications.
+A mobile application wrapper for Happy Plants Club using Capacitor 7, with integrated OneSignal push notifications and custom plugin for external user ID linking.
 
 ## Overview
 
 This project wraps the Happy Plants Club web application (https://happyplantsclub.base44.app) in a native mobile app container using Capacitor 7. It includes:
 
 - ✅ Capacitor 7 integration
-- ✅ OneSignal push notifications
+- ✅ OneSignal push notifications (SDK 5.x)
+- ✅ Custom NotifyBridge plugin for web ↔ native communication
+- ✅ External user ID linking (email → OneSignal Player ID)
 - ✅ Push notification permissions
 - ✅ Microphone permissions
 - ✅ Android and iOS platform support
@@ -21,6 +23,12 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 - **App ID**: `com.happyplantsclub.beta`
 - **App Name**: Happy Plants Club
 - **Web URL**: https://happyplantsclub.base44.app
+
+## Important: Firebase Setup Required
+
+⚠️ **Before building for Android**, you must replace the placeholder `android/app/google-services.json` file with your actual Firebase configuration file.
+
+See [ONESIGNAL_SETUP.md](ONESIGNAL_SETUP.md) for complete setup instructions.
 
 ## Prerequisites
 
@@ -120,6 +128,51 @@ The app loads the web application via an iframe with the following permissions e
 - Microphone
 - Camera
 - Geolocation
+
+### NotifyBridge Plugin API
+
+The custom NotifyBridge plugin enables communication between your web app and the native OneSignal SDK:
+
+#### Methods
+
+**`login(options: { externalId: string })`** - Links an external user ID to OneSignal Player ID
+```javascript
+await NotifyBridge.login({ externalId: 'user@example.com' });
+```
+
+**`getPlayerId()`** - Retrieves the current OneSignal Player ID
+```javascript
+const result = await NotifyBridge.getPlayerId();
+```
+
+**`logout()`** - Clears the external user ID
+```javascript
+await NotifyBridge.logout();
+```
+
+**`requestPermission()`** - Requests push notification permission
+```javascript
+await NotifyBridge.requestPermission();
+```
+
+### Web App Integration
+
+From your Base44 web app, communicate with the mobile wrapper using postMessage:
+
+```javascript
+// Set external user ID when user logs in
+window.parent.postMessage({
+    type: 'setOneSignalExternalUserId',
+    externalUserId: 'user@example.com'
+}, '*');
+
+// Listen for confirmation
+window.addEventListener('message', function(event) {
+    if (event.data?.type === 'oneSignalExternalUserIdSet') {
+        console.log('OneSignal linked:', event.data.playerId);
+    }
+});
+```
 
 ## Sync Changes
 

@@ -1,0 +1,15 @@
+{
+  "_comment": "PLACEHOLDER - Replace this file with your actual google-services.json from Firebase Console",
+  "_instructions": [
+    "1. Go to Firebase Console: https://console.firebase.google.com/",
+    "2. Create or select your project",
+    "3. Add an Android app with package name: com.happyplantsclub.beta",
+    "4. Download the google-services.json file",
+    "5. Replace this file with the downloaded google-services.json",
+    "6. This file is required for push notifications to work properly"
+  ],
+  "project_info": {
+    "project_number": "REPLACE_WITH_YOUR_PROJECT_NUMBER",
+    "project_id": "REPLACE_WITH_YOUR_PROJECT_ID"
+  }
+}
