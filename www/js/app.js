@@ -59,9 +59,9 @@ function setOneSignalExternalUserId(externalUserId) {
         });
 }
 
-// Request notification permission on device ready
-document.addEventListener('deviceready', function() {
-    console.log('[OneSignal] Device ready, requesting permission...');
+// Request notification permission
+function requestNotificationPermission() {
+    console.log('[OneSignal] Requesting notification permission...');
     
     const notifyBridge = getNotifyBridgePlugin();
     if (notifyBridge) {
@@ -83,6 +83,35 @@ document.addEventListener('deviceready', function() {
         console.error('[OneSignal] NotifyBridge plugin not found!');
         console.log('[OneSignal] Available Capacitor plugins:', window.Capacitor?.Plugins ? Object.keys(window.Capacitor.Plugins) : 'Capacitor not loaded');
     }
+}
+
+// Initialize when Capacitor is ready
+function initializeApp() {
+    console.log('[OneSignal] Initializing app...');
+    console.log('[OneSignal] Capacitor platform:', window.Capacitor?.getPlatform?.());
+    
+    // Request permission after a short delay to ensure everything is loaded
+    setTimeout(requestNotificationPermission, 1000);
+}
+
+// Listen for Capacitor-specific ready event
+if (window.Capacitor) {
+    console.log('[OneSignal] Capacitor detected, initializing...');
+    // Capacitor is already loaded
+    initializeApp();
+} else {
+    // Fallback: wait for window load
+    console.log('[OneSignal] Waiting for window load...');
+    window.addEventListener('load', function() {
+        console.log('[OneSignal] Window loaded');
+        initializeApp();
+    });
+}
+
+// Also listen for the Cordova deviceready event as a fallback
+document.addEventListener('deviceready', function() {
+    console.log('[OneSignal] deviceready event fired (Cordova compatibility)');
+    initializeApp();
 }, false);
 
 // Log when script loads

@@ -272,6 +272,8 @@ Already configured:
 - ✅ `capacitor.config.json` - Capacitor configuration
 - ✅ `package.json` - Dependencies
 
+**Note:** The `cleartext: true` setting in `capacitor.config.json` is enabled to support HTTP traffic during development. For production builds, ensure your server uses HTTPS (which happyplantsclub.base44.app already does), or remove this setting to enforce secure connections only.
+
 ## Troubleshooting
 
 ### Issue: "NotifyBridge plugin not available"
