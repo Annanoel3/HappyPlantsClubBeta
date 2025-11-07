@@ -222,7 +222,7 @@ npm run sync
 ```bash
 npx cap open android
 # or use the npm script:
-npm run open android
+npm run open:android
 ```
 
 2. Build and run from Android Studio, or use the command line:
@@ -245,7 +245,7 @@ cd ../..
 ```bash
 npx cap open ios
 # or use the npm script:
-npm run open ios
+npm run open:ios
 ```
 
 3. Build and run from Xcode, or use the command line:

@@ -6,7 +6,8 @@
   "scripts": {
     "build": "echo 'No build step needed for wrapper'",
     "sync": "npx cap sync",
-    "open": "npx cap open",
+    "open:android": "npx cap open android",
+    "open:ios": "npx cap open ios",
     "test:browser": "echo 'Opening www/index.html - use your browser to open this file for local testing'",
     "dev:android": "npx cap run android",
     "dev:ios": "npx cap run ios"
