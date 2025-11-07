@@ -162,7 +162,7 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 - **Web URL**: https://happyplantsclub.base44.app
 
 ### Firebase
-- ✅ **Firebase configured** - `android/app/google-services.json` is set up for the project
+- ✅ **Firebase configured** - The production Firebase configuration file (`android/app/google-services.json`) is already included in the repository for the Happy Plants Club project.
 
 See [ONESIGNAL_SETUP.md](ONESIGNAL_SETUP.md) for complete OneSignal setup instructions.
 
