@@ -8,7 +8,6 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.onesignal.OneSignal;
-import com.onesignal.user.OSUser;
 import com.onesignal.user.subscriptions.IPushSubscription;
 import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
