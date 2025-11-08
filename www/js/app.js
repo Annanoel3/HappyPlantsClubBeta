@@ -303,16 +303,96 @@ function flushPendingExternalUserId() {
     processExternalUserIdQueue();
 }
 
-// Wait for Capacitor to be ready
-document.addEventListener('deviceready', function() {
-    console.log('[OneSignal Wrapper] ✅ Device is ready, Capacitor initialized');
-    console.log('[OneSignal Wrapper] Available Capacitor plugins:', window.Capacitor?.Plugins ? Object.keys(window.Capacitor.Plugins) : 'None');
-    console.log('[OneSignal Wrapper] OneSignal is initialized in native code (MainActivity.java)');
+/**
+ * Initialize wrapper logic once Capacitor bridge is ready.
+ * Works even if Cordova's 'deviceready' never fires.
+ */
+let WRAPPER_STARTED = false;
 
-setTimeout(() => {
-  console.log('[Diag] Late plugin keys:', window.Capacitor?.Plugins && Object.keys(window.Capacitor.Plugins));
-  console.log('[Diag] NotifyBridge exists?', !!(window.Capacitor?.Plugins?.NotifyBridge || window.NotifyBridge));
-}, 1500);
+function startWrapperInit() {
+  if (WRAPPER_STARTED) return;
+  WRAPPER_STARTED = true;
+
+  console.log('[OneSignal Wrapper] ✅ Starting wrapper initialization');
+  console.log('[OneSignal Wrapper] Capacitor object present?', !!window.Capacitor);
+  console.log('[OneSignal Wrapper] Available initial plugin keys:',
+    window.Capacitor?.Plugins ? Object.keys(window.Capacitor.Plugins) : 'None');
+
+  // Register NotifyBridge plugin (Capacitor 7 manual JS registration)
+  if (window.Capacitor && typeof window.Capacitor.registerPlugin === 'function') {
+    try {
+      console.log('[OneSignal Wrapper] Registering NotifyBridge plugin...');
+      window.NotifyBridge = window.Capacitor.registerPlugin('NotifyBridge');
+      console.log('[OneSignal Wrapper] ✅ NotifyBridge plugin registered via registerPlugin');
+      console.log('[OneSignal Wrapper] NotifyBridge methods:',
+        Object.keys(window.NotifyBridge || {}));
+    } catch (err) {
+      console.error('[OneSignal Wrapper] ❌ NotifyBridge registration failed:', err);
+    }
+  } else {
+    console.warn('[OneSignal Wrapper] ⚠️ registerPlugin not available yet; will probe.');
+  }
+
+  // Begin periodic probes for delayed plugin exposure (native bridge may finish a bit later)
+  let probeCount = 0;
+  const maxProbes = 10;
+  const probeInterval = setInterval(() => {
+    probeCount++;
+    const pluginKeys = window.Capacitor?.Plugins && Object.keys(window.Capacitor.Plugins);
+    const notifyAvailable = !!(window.Capacitor?.Plugins?.NotifyBridge || window.NotifyBridge);
+    console.log(`[Diag Probe ${probeCount}/${maxProbes}] plugin keys:`, pluginKeys, 'NotifyBridge?', notifyAvailable);
+
+    if (!window.NotifyBridge && window.Capacitor?.Plugins?.NotifyBridge) {
+      window.NotifyBridge = window.Capacitor.Plugins.NotifyBridge;
+      console.log('[Diag Probe] Fallback assignment succeeded.');
+    }
+
+    if (notifyAvailable || probeCount >= maxProbes) {
+      clearInterval(probeInterval);
+      console.log('[Diag] Probe finished. Final NotifyBridge available?', !!window.NotifyBridge);
+
+      // Kick off permission request + queued external ID processing + player ID
+      requestNotificationPermission();
+      flushPendingExternalUserId();
+      setTimeout(sendPlayerIdToIframe, INITIAL_PLAYER_ID_DELAY_MS);
+    }
+  }, 500);
+}
+
+/**
+ * Bootstrap method choosing the best available event.
+ * - capacitorReady is emitted by Capacitor runtime.
+ * - Fallback timers handle edge cases.
+ */
+function bootWrapper() {
+  if (WRAPPER_STARTED) return;
+  if (window.Capacitor) {
+    startWrapperInit();
+  } else {
+    // Wait briefly for native bridge injection
+    setTimeout(() => {
+      if (window.Capacitor && !WRAPPER_STARTED) {
+        startWrapperInit();
+      } else if (!WRAPPER_STARTED) {
+        console.warn('[OneSignal Wrapper] ⚠️ Capacitor still missing after timeout; continuing to wait...');
+        // Extend wait once more
+        setTimeout(() => {
+          if (window.Capacitor && !WRAPPER_STARTED) {
+            startWrapperInit();
+          } else if (!WRAPPER_STARTED) {
+            console.error('[OneSignal Wrapper] ❌ Capacitor never appeared; plugin cannot be used.');
+          }
+        }, 2000);
+      }
+    }, 300);
+  }
+}
+
+// Listen for Capacitor-specific readiness
+window.addEventListener('capacitorReady', bootWrapper);
+
+// As a safety net, attempt start soon after script load
+bootWrapper();
 
     // Register NotifyBridge plugin for Capacitor 7+
     // This ensures the plugin is accessible after Capacitor is fully initialized
