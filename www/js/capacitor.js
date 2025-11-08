@@ -1,8 +1,19 @@
-// Only define stub if completely absent AND we are clearly in a pure browser (not Android/iOS native code)
-// In capacitor.js
+// Capacitor stub - only for pure browser testing.
+// Guard so it does NOT override the native Capacitor object in the mobile app.
 (function() {
-  const nativeLikely = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-  if (!nativeLikely && !window.Capacitor) {
-    window.Capacitor = { isNativePlatform: () => false, getPlatform: () => 'web' };
+  // If the real Capacitor is already present, do nothing
+  if (window.Capacitor) return;
+
+  // Heuristic: only stub in desktop browsers, not in Android/iOS WebView
+  const ua = navigator.userAgent || '';
+  const isMobileOS = /Android|iPhone|iPad|iPod/i.test(ua);
+  const isStandaloneWeb = !isMobileOS;
+
+  if (isStandaloneWeb) {
+    window.Capacitor = {
+      isNativePlatform: () => false,
+      getPlatform: () => 'web',
+      Plugins: {}
+    };
   }
 })();
