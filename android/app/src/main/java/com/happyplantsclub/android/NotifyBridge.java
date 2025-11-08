@@ -13,6 +13,7 @@ import kotlin.coroutines.Continuation;
 import kotlin.coroutines.CoroutineContext;
 import kotlin.coroutines.EmptyCoroutineContext;
 import org.jetbrains.annotations.NotNull;
+
 /**
  * NotifyBridge - Custom Capacitor plugin to bridge web app with OneSignal native SDK
  *
@@ -45,8 +46,7 @@ public class NotifyBridge extends Plugin {
 
         runOnMainThread(() -> {
             try {
-                // Call the native OneSignal SDK login method
-                // This associates the user's email with their OneSignal player ID
+                // Associate external ID with OneSignal user
                 OneSignal.login(externalId);
                 resolvePlayerIdOnMainThread(call, externalId, 0);
             } catch (Exception e) {
@@ -73,24 +73,28 @@ public class NotifyBridge extends Plugin {
      * @return The OneSignal Player ID (OneSignal User ID)
      */
     private String getPlayerIdFromOneSignal() {
-        OSUser user = OneSignal.getUser();
-
-        if (user == null) {
-            return "";
-        }
-
-        // Get the OneSignal User ID (also known as Player ID)
-        String onesignalId = user.getOnesignalId();
-
-        // If OneSignal ID is not available, try to get the push subscription ID
-        if (onesignalId == null || onesignalId.isEmpty()) {
-            IPushSubscription pushSubscription = user.getPushSubscription();
-            if (pushSubscription != null) {
-                onesignalId = pushSubscription.getId();
+        try {
+            if (OneSignal.getUser() == null) {
+                return "";
             }
-        }
 
-        return onesignalId != null ? onesignalId : "";
+            // Primary: canonical OneSignal user ID
+            String onesignalId = OneSignal.getUser().getOnesignalId();
+            if (onesignalId != null && !onesignalId.isEmpty()) {
+                return onesignalId;
+            }
+
+            // Fallback: push subscription ID
+            IPushSubscription pushSubscription = OneSignal.getUser().getPushSubscription();
+            if (pushSubscription != null) {
+                String subId = pushSubscription.getId();
+                if (subId != null && !subId.isEmpty()) {
+                    return subId;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return "";
     }
 
     private void resolvePlayerIdAsync(final PluginCall call, final String externalId, final int attempt) {
@@ -118,7 +122,10 @@ public class NotifyBridge extends Plugin {
                 return;
             }
 
-            mainHandler.postDelayed(() -> resolvePlayerIdOnMainThread(call, externalId, attempt + 1), PLAYER_ID_RETRY_DELAY_MS);
+            mainHandler.postDelayed(
+                () -> resolvePlayerIdOnMainThread(call, externalId, attempt + 1),
+                PLAYER_ID_RETRY_DELAY_MS
+            );
         } catch (Exception e) {
             call.reject("Failed to retrieve Player ID: " + e.getMessage());
         }
@@ -143,9 +150,7 @@ public class NotifyBridge extends Plugin {
     public void logout(PluginCall call) {
         runOnMainThread(() -> {
             try {
-                // Remove the external user ID association
                 OneSignal.logout();
-
                 call.resolve();
             } catch (Exception e) {
                 call.reject("Failed to logout: " + e.getMessage());
@@ -154,19 +159,12 @@ public class NotifyBridge extends Plugin {
     }
 
     /**
-     * Request notification permission
-     *
-     * This is required for Android 13+ to request POST_NOTIFICATIONS permission
-     *
-     * @param call PluginCall
+     * Request notification permission (Android 13+)
      */
     @PluginMethod
     public void requestPermission(PluginCall call) {
         runOnMainThread(() -> {
             try {
-                // Request notification permission (required for Android 13+)
-                // OneSignal SDK 5.x's requestPermission() is a Kotlin suspend function
-                // Calling it from Java requires a Continuation callback parameter
                 OneSignal.getNotifications().requestPermission(true, new Continuation<Boolean>() {
                     @NotNull
                     @Override
