@@ -1,5 +1,6 @@
 package com.happyplantsclub.android;
 
+import com.happyplantsclub.android.BuildConfig;
 import android.app.Application;
 import android.util.Log;
 import com.onesignal.OneSignal;
