@@ -1,6 +1,5 @@
 // Wrapper Bootstrap for Capacitor 7 (no Cordova deviceready dependency)
 
-// Retry configuration for Player ID retrieval
 const PLAYER_ID_RETRY_MAX_ATTEMPTS = 5;
 const PLAYER_ID_RETRY_DELAY_MS = 1000;
 const INITIAL_PLAYER_ID_DELAY_MS = 2000; // Wait 2 seconds after device ready before initial Player ID retrieval
@@ -19,7 +18,7 @@ console.log('[OneSignal Wrapper] Setting up postMessage listener...');
 window.addEventListener('message', function(event) {
     console.log('[OneSignal Wrapper] Received postMessage:', event.data);
 
-    // Accept messages from your Base44 app origin
+    // Accept messages from your HappyPlants app origin
     if (event.data && event.data.type === 'setOneSignalExternalUserId') {
         const externalUserId = event.data.externalUserId;
         console.log('[OneSignal Wrapper] Request to set external user ID (postMessage):', externalUserId);
@@ -34,11 +33,8 @@ window.addEventListener('message', function(event) {
 /**
  * Helper function to get the NotifyBridge plugin instance
  * Checks both the registered plugin and Capacitor.Plugins for compatibility
- * 
- * @returns {Object|null} The NotifyBridge plugin instance or null if not available
  */
 function getNotifyBridgePlugin() {
-    // Use optional chaining for cleaner code
     return window.NotifyBridge || window.Capacitor?.Plugins?.NotifyBridge || null;
 }
 
@@ -101,7 +97,8 @@ function shouldIgnoreExternalUserId(externalUserId, source) {
     }
 
     const looksLikeUrl = externalUserId.startsWith('http://') || externalUserId.startsWith('https://');
-    const looksLikeAppUrl = externalUserId === BASE44_APP_URL;
+    // CHANGE BELOW TO YOUR APP URL IF NEEDED
+    const looksLikeAppUrl = externalUserId === 'https://happyplantsclub.base44.app';
 
     if (looksLikeUrl || looksLikeAppUrl) {
         console.warn(`[OneSignal Wrapper] Ignoring suspicious external user ID from ${source}:`, externalUserId);
@@ -199,7 +196,6 @@ function sendExternalUserIdToNotifyBridge(externalUserId) {
     }
     
     // Call the native NotifyBridge plugin
-    // This will return both the playerId and externalId
     return notifyBridge.login({ externalId: externalUserId });
 }
 
@@ -216,7 +212,6 @@ function logoutOneSignal() {
             return;
         }
 
-        // Call the native NotifyBridge plugin logout method
         notifyBridge.logout()
             .then(function() {
                 console.log('[OneSignal Wrapper] ✅ OneSignal logout successful');
@@ -238,37 +233,27 @@ function notifyIframe(success, data, playerId) {
             success: success,
             data: data,
             playerId: playerId || ''
-        }, BASE44_APP_URL);
+        }, 'https://happyplantsclub.base44.app');
     }
 }
 
 function isNotifyBridgeAvailable() {
     // In Capacitor 7+, plugins might not appear in window.Capacitor.Plugins immediately
-    // Use the helper function to check if plugin is available
-    if (!window.Capacitor) {
-        return false;
-    }
-    
     const notifyBridge = getNotifyBridgePlugin();
-    
     if (notifyBridge && typeof notifyBridge.login === 'function') {
         return true;
     }
-    
-    // Debug: log available plugins once
     try {
-        if (typeof window.Capacitor.Plugins !== 'undefined') {
+        if (typeof window.Capacitor?.Plugins !== 'undefined' && !notifyBridgePluginCheckLogged) {
             const pluginKeys = Object.keys(window.Capacitor.Plugins || {});
-            if (pluginKeys.length > 0 && !notifyBridgePluginCheckLogged) {
+            if (pluginKeys.length > 0) {
                 console.log('[OneSignal Wrapper] Available plugin keys:', pluginKeys);
                 notifyBridgePluginCheckLogged = true;
             }
         }
     } catch (e) {
-        // Safely ignore errors during debug logging - this is a non-critical diagnostic feature
-        // Errors here won't affect plugin functionality
+        // Ignore errors here; only diagnostic
     }
-    
     return false;
 }
 
@@ -276,16 +261,13 @@ function startNotifyBridgeWatcher() {
     if (!pendingExternalUserIdQueue.length) {
         return;
     }
-
     if (isNotifyBridgeAvailable()) {
         processExternalUserIdQueue();
         return;
     }
-
     if (notifyBridgeWatcher) {
         return;
     }
-
     console.log('[OneSignal Wrapper] Waiting for NotifyBridge plugin to become available...');
     notifyBridgeWatcher = setInterval(function() {
         if (isNotifyBridgeAvailable()) {
@@ -307,8 +289,6 @@ document.addEventListener('deviceready', function() {
     console.log('[OneSignal Wrapper] Available Capacitor plugins:', window.Capacitor?.Plugins ? Object.keys(window.Capacitor.Plugins) : 'None');
     console.log('[OneSignal Wrapper] OneSignal is initialized in native code (MainActivity.java)');
 
-    // Register NotifyBridge plugin for Capacitor 7+
-    // This ensures the plugin is accessible after Capacitor is fully initialized
     if (window.Capacitor && window.Capacitor.registerPlugin) {
         console.log('[OneSignal Wrapper] Registering NotifyBridge plugin...');
         try {
@@ -322,31 +302,22 @@ document.addEventListener('deviceready', function() {
         console.warn('[OneSignal Wrapper] ⚠️ Capacitor.registerPlugin not available');
     }
 
-    // Request notification permission to establish OneSignal communication
     requestNotificationPermission();
-
-    // Retry any pending external user IDs now that Capacitor is ready.
     flushPendingExternalUserId();
-    
-    // Send initial player ID to iframe after a delay to ensure OneSignal is ready
+
     setTimeout(function() {
         sendPlayerIdToIframe();
     }, INITIAL_PLAYER_ID_DELAY_MS);
 }, false);
 
-// Function to request notification permission
 function requestNotificationPermission() {
     console.log('[OneSignal Wrapper] Requesting notification permission...');
-
     try {
         const notifyBridge = getNotifyBridgePlugin();
-        
         if (!notifyBridge) {
             console.error('[OneSignal Wrapper] ❌ NotifyBridge plugin not available for permission request');
             return;
         }
-
-        // Call the native NotifyBridge plugin to request permission
         notifyBridge.requestPermission()
             .then(function() {
                 console.log('[OneSignal Wrapper] ✅ Notification permission requested successfully');
@@ -359,17 +330,12 @@ function requestNotificationPermission() {
     }
 }
 
-// Function to send Player ID to iframe
+// Player ID flows:
 function sendPlayerIdToIframe() {
     console.log('[OneSignal Wrapper] Getting Player ID to send to iframe...');
-    
     tryGetPlayerIdWithRetry(0);
 }
 
-/**
- * Helper function to schedule a retry attempt
- * @param {number} attemptNumber - Current attempt number
- */
 function schedulePlayerIdRetry(attemptNumber) {
     if (attemptNumber < PLAYER_ID_RETRY_MAX_ATTEMPTS) {
         console.log(`[OneSignal Wrapper] Retrying in ${PLAYER_ID_RETRY_DELAY_MS}ms (attempt ${attemptNumber + 1}/${PLAYER_ID_RETRY_MAX_ATTEMPTS})...`);
@@ -381,37 +347,29 @@ function schedulePlayerIdRetry(attemptNumber) {
     }
 }
 
-// Helper function to retry getting Player ID if it's not available yet
 function tryGetPlayerIdWithRetry(attemptNumber) {
     try {
         const notifyBridge = getNotifyBridgePlugin();
-        
         if (!notifyBridge) {
             console.error('[OneSignal Wrapper] ❌ NotifyBridge plugin not available to get Player ID');
             schedulePlayerIdRetry(attemptNumber);
             return;
         }
-
-        // Call the native NotifyBridge plugin to get the Player ID
         notifyBridge.getPlayerId()
             .then(function(response) {
                 const playerId = response && response.playerId ? response.playerId : '';
-                
                 if (!playerId || playerId === '') {
                     console.warn('[OneSignal Wrapper] ⚠️ Player ID is empty');
                     schedulePlayerIdRetry(attemptNumber);
                     return;
                 }
-                
                 console.log('[OneSignal Wrapper] ✅ Player ID retrieved:', playerId);
-                
-                // Send Player ID to iframe
                 const iframe = document.querySelector('iframe');
                 if (iframe && iframe.contentWindow) {
                     iframe.contentWindow.postMessage({
                         type: 'oneSignalPlayerId',
                         playerId: playerId
-                    }, BASE44_APP_URL);
+                    }, 'https://happyplantsclub.base44.app');
                     console.log('[OneSignal Wrapper] ✅ Player ID sent to iframe');
                 } else if (!iframe) {
                     console.warn('[OneSignal Wrapper] ⚠️ Could not find iframe to send Player ID');

@@ -5,8 +5,6 @@ import android.util.Log;
 
 import com.onesignal.OneSignal;
 import com.onesignal.debug.LogLevel;
-// Uncomment if you keep the BuildConfig usage:
-// import com.happyplantsclub.android.BuildConfig;
 
 public class MainApplication extends Application {
     private static final String TAG = "MainApplication";
@@ -16,18 +14,10 @@ public class MainApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.d(TAG, "onCreate: initializing OneSignal");
-
-        // Option A (keep BuildConfig):
-        // if (BuildConfig.DEBUG) {
-        //     OneSignal.getDebug().setLogLevel(LogLevel.VERBOSE);
-        // }
-
-        // Option B (manual flag, avoids BuildConfig):
         boolean isDebug = !"user".equals(android.os.Build.TYPE);
         if (isDebug) {
             OneSignal.getDebug().setLogLevel(LogLevel.VERBOSE);
         }
-
         OneSignal.initWithContext(this, ONESIGNAL_APP_ID);
         Log.d(TAG, "OneSignal init complete");
     }
