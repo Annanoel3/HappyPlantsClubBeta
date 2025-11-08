@@ -309,6 +309,11 @@ document.addEventListener('deviceready', function() {
     console.log('[OneSignal Wrapper] Available Capacitor plugins:', window.Capacitor?.Plugins ? Object.keys(window.Capacitor.Plugins) : 'None');
     console.log('[OneSignal Wrapper] OneSignal is initialized in native code (MainActivity.java)');
 
+setTimeout(() => {
+  console.log('[Diag] Late plugin keys:', window.Capacitor?.Plugins && Object.keys(window.Capacitor.Plugins));
+  console.log('[Diag] NotifyBridge exists?', !!(window.Capacitor?.Plugins?.NotifyBridge || window.NotifyBridge));
+}, 1500);
+
     // Register NotifyBridge plugin for Capacitor 7+
     // This ensures the plugin is accessible after Capacitor is fully initialized
     if (window.Capacitor && window.Capacitor.registerPlugin) {

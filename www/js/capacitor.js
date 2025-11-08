@@ -1,8 +1,10 @@
-// Capacitor stub - Capacitor runtime is injected by the native platform
-// This file exists to prevent 404 errors when running in a browser
-if (!window.Capacitor) {
+// Only define stub if completely absent AND we are clearly in a pure browser (not Android/iOS native code)
+(function() {
+  const inNative = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && window.matchMedia('(pointer: coarse)').matches;
+  if (!window.Capacitor && !inNative) {
     window.Capacitor = {
-        isNativePlatform: () => false,
-        getPlatform: () => 'web'
+      isNativePlatform: () => false,
+      getPlatform: () => 'web'
     };
-}
+  }
+})();
