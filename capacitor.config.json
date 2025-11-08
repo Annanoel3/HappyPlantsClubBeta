@@ -3,19 +3,12 @@
   "appName": "Happy Plants Club",
   "webDir": "www",
   "server": {
-    "url": "https://happyplantsclub.base44.app",
-    "cleartext": true
+    "androidScheme": "https"
   },
   "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 0
-    },
+    "SplashScreen": { "launchShowDuration": 0 },
     "PushNotifications": {
-      "presentationOptions": [
-        "badge",
-        "sound",
-        "alert"
-      ]
+      "presentationOptions": ["badge","sound","alert"]
     }
   }
 }
