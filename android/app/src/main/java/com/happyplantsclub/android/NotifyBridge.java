@@ -7,12 +7,9 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.onesignal.Continue;
 import com.onesignal.OneSignal;
 import com.onesignal.user.subscriptions.IPushSubscription;
-import kotlin.coroutines.Continuation;
-import kotlin.coroutines.CoroutineContext;
-import kotlin.coroutines.EmptyCoroutineContext;
-import org.jetbrains.annotations.NotNull;
 /**
  * NotifyBridge - Custom Capacitor plugin to bridge web app with OneSignal native SDK
  *
@@ -37,6 +34,11 @@ public class NotifyBridge extends Plugin {
     @PluginMethod
     public void login(PluginCall call) {
         String externalId = call.getString("externalId");
+        String identityHash = call.getString("authHash");
+
+        if (identityHash == null || identityHash.isEmpty()) {
+            identityHash = call.getString("jwtToken");
+        }
 
         if (externalId == null || externalId.isEmpty()) {
             call.reject("External ID is required");
@@ -47,7 +49,11 @@ public class NotifyBridge extends Plugin {
             try {
                 // Call the native OneSignal SDK login method
                 // This associates the user's email with their OneSignal player ID
-                OneSignal.login(externalId);
+                if (identityHash != null && !identityHash.isEmpty()) {
+                    OneSignal.login(externalId, identityHash);
+                } else {
+                    OneSignal.login(externalId);
+                }
                 resolvePlayerIdOnMainThread(call, externalId, 0);
             } catch (Exception e) {
                 call.reject("Failed to set external user ID: " + e.getMessage());
@@ -92,6 +98,7 @@ public class NotifyBridge extends Plugin {
     }
 
     private void resolvePlayerIdAsync(final PluginCall call, final String externalId, final int attempt) {
+        call.setKeepAlive(true);
         runOnMainThread(() -> resolvePlayerIdOnMainThread(call, externalId, attempt));
     }
 
@@ -108,16 +115,19 @@ public class NotifyBridge extends Plugin {
                 }
 
                 call.resolve(result);
+                call.setKeepAlive(false);
                 return;
             }
 
             if (attempt >= PLAYER_ID_MAX_ATTEMPTS) {
+                call.setKeepAlive(false);
                 call.reject("Player ID not available after waiting for OneSignal to initialize");
                 return;
             }
 
             mainHandler.postDelayed(() -> resolvePlayerIdOnMainThread(call, externalId, attempt + 1), PLAYER_ID_RETRY_DELAY_MS);
         } catch (Exception e) {
+            call.setKeepAlive(false);
             call.reject("Failed to retrieve Player ID: " + e.getMessage());
         }
     }
@@ -162,22 +172,37 @@ public class NotifyBridge extends Plugin {
     public void requestPermission(PluginCall call) {
         runOnMainThread(() -> {
             try {
-                // Request notification permission (required for Android 13+)
-                // OneSignal SDK 5.x's requestPermission() is a Kotlin suspend function
-                // Calling it from Java requires a Continuation callback parameter
-                OneSignal.getNotifications().requestPermission(true, new Continuation<Boolean>() {
-                    @NotNull
-                    @Override
-                    public CoroutineContext getContext() {
-                        return EmptyCoroutineContext.INSTANCE;
-                    }
+                if (OneSignal.getNotifications().getPermission()) {
+                    JSObject response = new JSObject();
+                    response.put("granted", true);
+                    call.resolve(response);
+                    return;
+                }
 
-                    @Override
-                    public void resumeWith(@NotNull Object result) {
-                        call.resolve();
-                    }
-                });
+                Boolean fallbackToSettings = call.getBoolean("fallbackToSettings", true);
+                call.setKeepAlive(true);
+
+                OneSignal.getNotifications().requestPermission(
+                    fallbackToSettings != null ? fallbackToSettings : true,
+                    Continue.with(result -> runOnMainThread(() -> {
+                        try {
+                            if (result.isSuccess()) {
+                                Boolean granted = result.getData();
+                                JSObject response = new JSObject();
+                                response.put("granted", granted != null && granted);
+                                call.resolve(response);
+                            } else {
+                                Throwable error = result.getThrowable();
+                                String message = error != null ? error.getMessage() : "unknown error";
+                                call.reject("Failed to request permission: " + message);
+                            }
+                        } finally {
+                            call.setKeepAlive(false);
+                        }
+                    }))
+                );
             } catch (Exception e) {
+                call.setKeepAlive(false);
                 call.reject("Failed to request permission: " + e.getMessage());
             }
         });
