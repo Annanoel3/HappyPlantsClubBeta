@@ -28,43 +28,15 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(NotifyBridge.class);
         Log.d(TAG, "NotifyBridge plugin registered");
 
-        // Verify OneSignal user object existence
-        if (OneSignal.getUser() == null) {
-            Log.w(TAG, "OneSignal user is null at Activity onCreate (initialization may still be in progress)");
-        } else {
-            Log.d(TAG, "OneSignal user object already available");
-        }
-
+        // Manual Android 13+ permission request (guarantees the system dialog)
         requestNotificationPermissionManually();
-        requestNotificationPermissionViaOneSignal();
-    }
 
-    private void requestNotificationPermissionManually() {
-        if (android.os.Build.VERSION.SDK_INT < 33) {
-            Log.d(TAG, "POST_NOTIFICATIONS not needed (API < 33)");
-            return;
-        }
-        int status = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS);
-        if (status == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "POST_NOTIFICATIONS already granted (manual check)");
-        } else {
-            Log.d(TAG, "Requesting POST_NOTIFICATIONS via ActivityCompat.requestPermissions");
-            ActivityCompat.requestPermissions(
-                this,
-                new String[]{Manifest.permission.POST_NOTIFICATIONS},
-                NOTIF_REQ_CODE
-            );
-        }
-    }
-
-    private void requestNotificationPermissionViaOneSignal() {
+        // OneSignal helper (redundant but fine)
         try {
             OneSignal.getNotifications().requestPermission(true, new Continuation<Boolean>() {
                 @NotNull
                 @Override
-                public CoroutineContext getContext() {
-                    return EmptyCoroutineContext.INSTANCE;
-                }
+                public CoroutineContext getContext() { return EmptyCoroutineContext.INSTANCE; }
                 @Override
                 public void resumeWith(@NotNull Object result) {
                     Log.d(TAG, "OneSignal permission helper resumed; result=" + result);
@@ -75,14 +47,32 @@ public class MainActivity extends BridgeActivity {
         }
     }
 
+    private void requestNotificationPermissionManually() {
+        if (android.os.Build.VERSION.SDK_INT < 33) {
+            Log.d(TAG, "POST_NOTIFICATIONS not needed (API < 33)");
+            return;
+        }
+        int status = ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS);
+        if (status == PackageManager.PERMISSION_GRANTED) {
+            Log.d(TAG, "POST_NOTIFICATIONS already granted");
+        } else {
+            Log.d(TAG, "Requesting POST_NOTIFICATIONS via ActivityCompat.requestPermissions");
+            ActivityCompat.requestPermissions(
+                this,
+                new String[]{Manifest.permission.POST_NOTIFICATIONS},
+                NOTIF_REQ_CODE
+            );
+        }
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == NOTIF_REQ_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Log.d(TAG, "User granted POST_NOTIFICATIONS via manual request");
+                Log.d(TAG, "User granted POST_NOTIFICATIONS");
             } else {
-                Log.w(TAG, "User denied POST_NOTIFICATIONS via manual request");
+                Log.w(TAG, "User denied POST_NOTIFICATIONS");
             }
         }
     }

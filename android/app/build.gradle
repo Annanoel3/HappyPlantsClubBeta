@@ -39,7 +39,12 @@ dependencies {
     testImplementation "junit:junit:$junitVersion"
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
-    implementation project(':capacitor-cordova-android-plugins')
+
+    // Remove this if you uninstalled Cordova plugins. If other Cordova plugins remain, keep it.
+    // implementation project(':capacitor-cordova-android-plugins')
+
+    // ADD THIS: Native OneSignal Android SDK (5.x)
+    implementation "com.onesignal:OneSignal:5.1.18"
 }
 
 apply from: 'capacitor.build.gradle'
