@@ -49,24 +49,23 @@ public class NotifyBridge extends Plugin {
     }
 
     private String getPlayerIdFromOneSignal() {
-        try {
-            if (OneSignal.getUser() == null) {
-                return "";
-            }
-            String onesignalId = OneSignal.getUser().getOnesignalId();
-            if (onesignalId != null && !onesignalId.isEmpty()) {
-                return onesignalId;
-            }
-            IPushSubscription pushSubscription = OneSignal.getUser().getPushSubscription();
-            if (pushSubscription != null) {
-                String subId = pushSubscription.getId();
-                if (subId != null && !subId.isEmpty()) {
-                    return subId;
-                }
-            }
-        } catch (Exception ignored) {}
-        return "";
+    try {
+        com.onesignal.user.IUser user = OneSignal.getUser();
+        if (user == null) return "";
+        String onesignalId = user.getOnesignalId();
+        if (onesignalId != null && !onesignalId.isEmpty()) return onesignalId;
+
+        IPushSubscription pushSub = user.getPushSubscription();
+        if (pushSub != null) {
+            String pushId = pushSub.getId();
+            if (pushId != null && !pushId.isEmpty()) return pushId;
+        }
+    } catch (Exception e) {
+        Log.e("NotifyBridge", "Error getting playerId: " + e);
+	Log.d("NotifyBridge", "Checking OneSignal User: " + (OneSignal.getUser() == null ? "null" : "OK") + "; PlayerId: " + onesignalId);
     }
+    return "";
+}
 
     private void resolvePlayerIdAsync(final PluginCall call, final String externalId, final int attempt) {
         runOnMainThread(() -> resolvePlayerIdOnMainThread(call, externalId, attempt));
