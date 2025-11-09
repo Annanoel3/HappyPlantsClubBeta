@@ -1,25 +1,23 @@
-// Wrapper Bootstrap for Capacitor 7
+// Wrapper Bootstrap for Capacitor 7 + OneSignal
 
-const PLAYER_ID_RETRY_MAX_ATTEMPTS = 5;
+const PLAYER_ID_RETRY_MAX_ATTEMPTS = 10;
 const PLAYER_ID_RETRY_DELAY_MS = 1000;
-const INITIAL_PLAYER_ID_DELAY_MS = 2000; // Wait 2 seconds after device ready before initial Player ID retrieval
+const INITIAL_PLAYER_ID_DELAY_MS = 2000;
 const HAPPYPLANTS_APP_URL = 'https://happyplantsclub.base44.app';
 
-// Track pending external user IDs so we can retry once the native NotifyBridge plugin becomes available.
+// Queue external user IDs to set on OneSignal
 const pendingExternalUserIdQueue = [];
 let notifyBridgeWatcher = null;
 let isProcessingExternalUserId = false;
 let lastSuccessfulExternalUserId = null;
 let notifyBridgePluginCheckLogged = false;
 
-// Listen for messages from the iframe to set external user ID
 console.log('[OneSignal Wrapper] Setting up postMessage listener...');
 window.addEventListener('message', function(event) {
     console.log('[OneSignal Wrapper] Received postMessage:', event.data);
 
     if (event.data && event.data.type === 'setOneSignalExternalUserId') {
-        const externalUserId = event.data.externalUserId;
-        queueExternalUserIdRequest(externalUserId, 'postMessage');
+        queueExternalUserIdRequest(event.data.externalUserId, 'postMessage');
     } else if (event.data && event.data.type === 'oneSignalLogout') {
         logoutOneSignal();
     }
@@ -35,8 +33,10 @@ function setOneSignalExternalUserId(externalUserId, sourceLabel) {
 
 function queueExternalUserIdRequest(externalUserId, source) {
     const normalizedExternalUserId = normalizeExternalUserId(externalUserId);
-
-    if (!normalizedExternalUserId) return;
+    if (!normalizedExternalUserId) {
+        console.warn(`[OneSignal Wrapper] Ignoring empty external user ID from ${source}`);
+        return;
+    }
     if (shouldIgnoreExternalUserId(normalizedExternalUserId, source)) return;
     if (normalizedExternalUserId === lastSuccessfulExternalUserId) return;
     if (pendingExternalUserIdQueue.some(entry => entry.value === normalizedExternalUserId)) return;
@@ -46,7 +46,7 @@ function queueExternalUserIdRequest(externalUserId, source) {
 }
 
 function normalizeExternalUserId(externalUserId) {
-    if (externalUserId === null || externalUserId === undefined) return '';
+    if (externalUserId == null) return '';
     return String(externalUserId).trim();
 }
 
@@ -54,8 +54,7 @@ function shouldIgnoreExternalUserId(externalUserId, source) {
     if (!externalUserId) return true;
     const looksLikeUrl = externalUserId.startsWith('http://') || externalUserId.startsWith('https://');
     const looksLikeAppUrl = externalUserId === HAPPYPLANTS_APP_URL;
-    if (looksLikeUrl || looksLikeAppUrl) return true;
-    return false;
+    return looksLikeUrl || looksLikeAppUrl;
 }
 
 function processExternalUserIdQueue() {
@@ -67,21 +66,21 @@ function processExternalUserIdQueue() {
 
     const currentRequest = pendingExternalUserIdQueue[0];
 
-    // === NEW: wait for valid playerId before .login ===
+    // === Wait for valid player/device ID before calling login! ===
     getNotifyBridgePlugin().getPlayerId().then(function(response) {
         const playerId = response && response.playerId ? response.playerId : '';
         if (!playerId) {
-            console.log('[OneSignal Wrapper] Waiting for valid playerId before calling login...');
-            setTimeout(processExternalUserIdQueue, 500); // Retry
+            console.log('[OneSignal Wrapper] Waiting for player/device ID to be ready before login...');
+            setTimeout(processExternalUserIdQueue, 500); // Retry until OneSignal registration done
             return;
         }
 
-        console.log(`[OneSignal Wrapper] Ready to map external user ID (${currentRequest.value}) to playerId (${playerId})`);
+        console.log(`[OneSignal Wrapper] Linking external user ID "${currentRequest.value}" to playerId "${playerId}"`);
         isProcessingExternalUserId = true;
 
         getNotifyBridgePlugin().login({ externalId: currentRequest.value })
         .then(function(loginResponse) {
-            console.log(`[OneSignal Wrapper] ✅ External user ID set via NotifyBridge (${currentRequest.source})`);
+            console.log(`[OneSignal Wrapper] ✅ External user ID "${currentRequest.value}" set in OneSignal`);
             lastSuccessfulExternalUserId = currentRequest.value;
             notifyIframe(true, currentRequest.value, playerId);
             pendingExternalUserIdQueue.shift();
@@ -92,18 +91,12 @@ function processExternalUserIdQueue() {
             console.error(`[OneSignal Wrapper] ❌ Failed to set external user ID (${currentRequest.source}):`, error);
             isProcessingExternalUserId = false;
             notifyIframe(false, error, '');
-            setTimeout(processExternalUserIdQueue, 500);
+            setTimeout(processExternalUserIdQueue, 1200);
         });
     }).catch(function(getIdError) {
-        console.error(`[OneSignal Wrapper] ❌ Error getting player ID:`, getIdError);
-        setTimeout(processExternalUserIdQueue, 500);
+        console.error(`[OneSignal Wrapper] ❌ Error getting player/device ID:`, getIdError);
+        setTimeout(processExternalUserIdQueue, 1500);
     });
-}
-
-function sendExternalUserIdToNotifyBridge(externalUserId) {
-    const notifyBridge = getNotifyBridgePlugin();
-    if (!notifyBridge) return Promise.reject(new Error('NotifyBridge plugin not available'));
-    return notifyBridge.login({ externalId: externalUserId });
 }
 
 function logoutOneSignal() {
@@ -159,7 +152,7 @@ function flushPendingExternalUserId() {
     processExternalUserIdQueue();
 }
 
-// Wait for Capacitor to be ready (Cordova/Capacitor hybrid)
+// Wait for Capacitor to be ready
 document.addEventListener('deviceready', function() {
     if (window.Capacitor && window.Capacitor.registerPlugin) {
         window.NotifyBridge = window.Capacitor.registerPlugin('NotifyBridge');
@@ -175,10 +168,8 @@ function requestNotificationPermission() {
     notifyBridge.requestPermission().then(()=>{}).catch(()=>{});
 }
 
-// Player ID flows
-function sendPlayerIdToIframe() {
-    tryGetPlayerIdWithRetry(0);
-}
+// Player ID retrieval/retry
+function sendPlayerIdToIframe() { tryGetPlayerIdWithRetry(0); }
 
 function schedulePlayerIdRetry(attemptNumber) {
     if (attemptNumber < PLAYER_ID_RETRY_MAX_ATTEMPTS) {
@@ -204,7 +195,6 @@ function tryGetPlayerIdWithRetry(attemptNumber) {
     }).catch(()=>{ schedulePlayerIdRetry(attemptNumber); });
 }
 
-// JS fallback for browser
 if (!window.Capacitor) {
     console.log('[OneSignal Wrapper] Running in browser mode - Capacitor features not available');
 }
