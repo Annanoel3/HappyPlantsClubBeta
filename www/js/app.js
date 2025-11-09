@@ -154,10 +154,11 @@ function flushPendingExternalUserId() {
 
 // Wait for Capacitor to be ready
 document.addEventListener('deviceready', function() {
-    if (window.Capacitor && window.Capacitor.registerPlugin) {
-        window.NotifyBridge = window.Capacitor.registerPlugin('NotifyBridge');
-        console.log('[OneSignal Wrapper] NotifyBridge plugin registered:', window.NotifyBridge);
-        console.log('[OneSignal Wrapper] Plugin keys:', Object.keys(window.Capacitor.Plugins || {}));
+    // Capacitor 7 automatically injects the native bridge and plugins
+    // Do NOT manually call window.Capacitor.registerPlugin() as it shadows the native bridge
+    console.log('[OneSignal Wrapper] Capacitor deviceready fired');
+    if (window.Capacitor && window.Capacitor.Plugins) {
+        console.log('[OneSignal Wrapper] Available plugins:', Object.keys(window.Capacitor.Plugins || {}));
     }
     requestNotificationPermission();
     flushPendingExternalUserId();
