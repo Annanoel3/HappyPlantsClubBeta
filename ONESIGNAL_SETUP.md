@@ -266,7 +266,6 @@ Already configured:
 ### Web Assets:
 - ✅ `www/index.html` - Main wrapper HTML
 - ✅ `www/js/app.js` - JavaScript bridge logic
-- ✅ `www/js/capacitor.js` - Capacitor stub
 
 ### Configuration:
 - ✅ `capacitor.config.json` - Capacitor configuration

@@ -94,7 +94,6 @@ This repository now contains a complete Capacitor 7 mobile app wrapper for the H
 **Web Assets:**
 - `www/index.html` - Main wrapper HTML
 - `www/js/app.js` - JavaScript bridge
-- `www/js/capacitor.js` - Capacitor stub
 
 ### 🔧 Build Commands
 
