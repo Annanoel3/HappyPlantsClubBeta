@@ -27,6 +27,10 @@ public class MainActivity extends BridgeActivity {
         registerPlugin(NotifyBridge.class);
         Log.d(TAG, "NotifyBridge plugin registered");
         
+        Log.d(TAG, "Registering BillingBridge plugin...");
+        registerPlugin(BillingBridge.class);
+        Log.d(TAG, "BillingBridge plugin registered");
+        
         super.onCreate(savedInstanceState);
 
         // Manual Android 13+ permission request (guarantees the system dialog)

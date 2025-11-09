@@ -18,8 +18,8 @@ android {
     }
     buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -45,6 +45,9 @@ dependencies {
 
     // ADD THIS: Native OneSignal Android SDK (5.x)
     implementation "com.onesignal:OneSignal:5.1.18"
+
+    // Google Play Billing Library for in-app purchases and subscriptions
+    implementation "com.android.billingclient:billing:7.1.1"
 }
 
 apply from: 'capacitor.build.gradle'
