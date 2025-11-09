@@ -294,8 +294,7 @@ HappyPlantsClubBeta/
 ├── www/                  # Web assets (use this for local testing!)
 │   ├── index.html        # Main app file with Capacitor integration
 │   └── js/
-│       ├── app.js        # OneSignal and iframe communication logic
-│       └── capacitor.js  # Capacitor stub for browser testing
+│       └── app.js        # OneSignal and iframe communication logic
 ├── capacitor.config.json # Capacitor configuration
 ├── package.json          # Node.js dependencies
 └── index.html            # Simplified wrapper (www/index.html is the main file)
