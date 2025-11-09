@@ -50,19 +50,19 @@ public class NotifyBridge extends Plugin {
 
     private String getPlayerIdFromOneSignal() {
     try {
-        com.onesignal.user.IUser user = OneSignal.getUser();
-        if (user == null) return "";
-        String onesignalId = user.getOnesignalId();
+        Object userObj = OneSignal.getUser();
+        if (userObj == null) return "";
+        // Use reflection if needed, but SDK typically allows direct calls
+        String onesignalId = OneSignal.getUser().getOnesignalId();
         if (onesignalId != null && !onesignalId.isEmpty()) return onesignalId;
 
-        IPushSubscription pushSub = user.getPushSubscription();
+        com.onesignal.user.subscriptions.IPushSubscription pushSub = OneSignal.getUser().getPushSubscription();
         if (pushSub != null) {
             String pushId = pushSub.getId();
             if (pushId != null && !pushId.isEmpty()) return pushId;
         }
     } catch (Exception e) {
-        Log.e("NotifyBridge", "Error getting playerId: " + e);
-	Log.d("NotifyBridge", "Checking OneSignal User: " + (OneSignal.getUser() == null ? "null" : "OK") + "; PlayerId: " + onesignalId);
+        android.util.Log.e("NotifyBridge", "Error getting playerId: " + e);
     }
     return "";
 }
