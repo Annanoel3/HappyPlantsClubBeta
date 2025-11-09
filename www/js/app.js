@@ -156,7 +156,7 @@ function flushPendingExternalUserId() {
 document.addEventListener('deviceready', function() {
     if (window.Capacitor && window.Capacitor.registerPlugin) {
         window.NotifyBridge = window.Capacitor.registerPlugin('NotifyBridge');
-        console.log('[OneSignal Wrapper] NotifyBridge plugin registered via Capacitor.registerPlugin');
+        console.log('[OneSignal Wrapper] NotifyBridge plugin registered:', window.NotifyBridge);
         console.log('[OneSignal Wrapper] Plugin keys:', Object.keys(window.Capacitor.Plugins || {}));
     }
     requestNotificationPermission();
