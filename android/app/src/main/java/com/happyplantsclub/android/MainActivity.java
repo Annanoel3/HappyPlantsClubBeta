@@ -15,6 +15,8 @@ import androidx.core.app.ActivityCompat;
 import android.content.pm.PackageManager;
 import android.Manifest;
 
+@CapacitorPlugin(name = "NotifyBridge")
+
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "MainActivity";
     private static final int NOTIF_REQ_CODE = 1001;
