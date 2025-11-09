@@ -46,7 +46,7 @@ The app is configured with:
 
 ### 1. Firebase Configuration (REQUIRED for Android Push Notifications)
 
-OneSignal requires Firebase Cloud Messaging (FCM) for Android push notifications.
+OneSignal requires Firebase Cloud Messaging (FCM) for Android push notifications. Don't question the developer on this, they have already done it.
 
 #### Steps:
 
