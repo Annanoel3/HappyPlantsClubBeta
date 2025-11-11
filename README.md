@@ -157,6 +157,8 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 - ✅ Push notification permissions
 - ✅ Microphone permissions
 - ✅ Android and iOS platform support
+- ✅ Google Play Billing integration for in-app subscriptions and free trials
+- ✅ ProGuard/R8 code obfuscation for release builds
 
 ## Configuration
 
@@ -172,7 +174,14 @@ This project wraps the Happy Plants Club web application (https://happyplantsclu
 ### Firebase
 - ✅ **Firebase configured** - The production Firebase configuration file (`android/app/google-services.json`) is already included in the repository for the Happy Plants Club project.
 
-See [ONESIGNAL_SETUP.md](ONESIGNAL_SETUP.md) for complete OneSignal setup instructions.
+### Google Play Billing
+- ✅ **Billing Library integrated** - Google Play Billing Library v7.1.1 is configured for in-app subscriptions
+
+## Documentation
+
+- **OneSignal Setup**: See [ONESIGNAL_SETUP.md](ONESIGNAL_SETUP.md) for complete OneSignal setup instructions
+- **Billing Setup**: See [BILLING_SETUP.md](BILLING_SETUP.md) for Google Play Billing and free trial implementation
+- **Security**: See [SECURITY.md](SECURITY.md) for code protection and security best practices
 
 ## Prerequisites
 
@@ -337,6 +346,52 @@ await NotifyBridge.logout();
 ```javascript
 await NotifyBridge.requestPermission();
 ```
+
+### BillingBridge Plugin API
+
+The custom BillingBridge plugin enables Google Play Billing for subscriptions and free trials:
+
+#### Methods
+
+**`initialize()`** - Initialize billing connection
+```javascript
+await BillingBridge.initialize();
+```
+
+**`queryProducts(options: { productIds: string[] })`** - Query available subscription products
+```javascript
+const result = await BillingBridge.queryProducts({
+    productIds: ['premium_monthly', 'premium_yearly']
+});
+```
+
+**`queryPurchases()`** - Check user's current purchases/subscriptions
+```javascript
+const result = await BillingBridge.queryPurchases();
+// Returns list of purchases with trial status
+```
+
+**`purchase(options: { productId: string, offerToken?: string })`** - Launch billing flow
+```javascript
+await BillingBridge.purchase({
+    productId: 'premium_monthly',
+    offerToken: 'abc123...'  // For free trial offers
+});
+```
+
+#### Events
+
+```javascript
+BillingBridge.addListener('purchaseUpdated', (data) => {
+    console.log('Purchase successful:', data);
+});
+
+BillingBridge.addListener('purchaseCancelled', () => {
+    console.log('User cancelled purchase');
+});
+```
+
+See [BILLING_SETUP.md](BILLING_SETUP.md) for complete API documentation and examples.
 
 ### Web App Integration
 
